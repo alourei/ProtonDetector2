@@ -1,0 +1,46 @@
+/*
+ * ProtonDetectorBeamInfo.cc
+ *
+ *  Created on: Dec 16, 2013
+ *      Author: perezlou
+ */
+
+#include <ProtonDetectorBeamInfo.hh>
+
+#include <globals.hh>
+
+ClassImp(ProtonDetectorBeamInfo)
+
+
+ProtonDetectorBeamInfo::ProtonDetectorBeamInfo() {
+	//Sets initla values
+	energyEntrance=0;
+
+	thetaEntrance=0;      // theta emission angle
+
+	phiEntrance=0;        // phi emission angle
+
+	xInitial=0;          // beam entrance position
+	yInitial=0;
+	zInitial=0;
+
+	//Charge=0;
+	//Mass=0;
+
+
+
+}
+
+ProtonDetectorBeamInfo::~ProtonDetectorBeamInfo() {
+	// TODO Auto-generated destructor stub
+}
+
+void ProtonDetectorBeamInfo::print(){
+
+	  G4cout << "-------------------------------------------" << G4endl;
+	  G4cout << "------- ProtonDetectorBeamInfo::print() ---------" << G4endl;
+	  G4cout << "-------------------------------------------" << G4endl;
+
+
+}
+

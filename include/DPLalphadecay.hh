@@ -1,0 +1,150 @@
+/*
+ * DPL1pdecay.hh
+ *
+ *  Created on: Feb 19, 2014
+ *      Author: perezlou
+ */
+
+#ifndef DPLALPHADECAY_HH_
+#define DPLALPHADECAY_HH_
+
+#include <G4VDiscreteProcess.hh>
+
+#include "globals.hh"
+#include "G4ios.hh"
+#include "Randomize.hh"
+#include "G4Track.hh"
+#include "G4Step.hh"
+#include "G4ParticleTypes.hh"
+#include "G4ParticleTable.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4DynamicParticle.hh"
+#include "G4ThreeVector.hh"
+#include "G4LorentzVector.hh"
+#include "G4VParticleChange.hh"
+
+#include "G4Material.hh"
+#include "G4UnitsTable.hh"
+
+
+class DPL_alphaDecay: public G4VDiscreteProcess {
+public:
+	DPL_alphaDecay(const G4String& processName="DPL_alphaDecay");
+	~DPL_alphaDecay();
+
+
+	// These are the functions in the Process: Derived from G4VDiscreteProcess.hh
+
+	G4bool IsApplicable(const G4ParticleDefinition& aParticle);
+	  // Decides if process applicable or not. Eventually make only valid for Neutrons
+	  // at some energy.
+
+	G4double GetMeanFreePath(const G4Track& aTrack, G4double previousStepSize,
+	                           G4ForceCondition* condition);
+	  // Overrides function in base class. Need to figure out how it plugs in!
+	  // Says returns MeanFreePath for a particle in a given material!
+	  // Invoked by Process Manager (Therefore necessary to get Process going!)
+
+	G4VParticleChange* PostStepDoIt(const G4Track &aTrack, const G4Step &aStep);
+	  // This is the important function where you define the process
+	  // Returns steps, track and secondary particles
+	  // In this test, changes direction of neutron.
+	  // Invoked by Process Manager (Therefore necessary to get Process going!)
+
+	void SetParentNucleus(G4int theMass, G4int theCharge);
+
+	G4double Absolute(G4double num);
+	G4double randBW(G4double center, G4double width);
+	G4double VectModulus(G4ThreeVector Mom);
+	G4double VectModulus(G4LorentzVector Mom);
+	G4double ScalarProduct(G4ThreeVector V1, G4ThreeVector V2);
+	G4double ScalarProduct(G4LorentzVector V1, G4ThreeVector V2);
+	G4double ScalarProduct(G4LorentzVector V1, G4LorentzVector V2);
+
+	G4LorentzVector LorentzBoost(G4LorentzVector Mom, G4ThreeVector Beta);
+
+	// Produces BacktoBack recoil/neutron event in the center of mass.
+	void BacktoBack(G4double DeltaM);
+
+	void CMFrameToLabFrame();
+
+	// Goldhaber Momentum Kick Functions - Added 2 Oct. 2007 - BTR
+
+	G4double GaussianRandom(G4double FWHM);
+	G4double GoldhaberFWHM(G4double A_Beam, G4double A_frag, G4double sigma0);
+	void GoldhaberKick();
+
+	// Use this function to enable Goldhaber Momentum Kick in Physics List.
+	// Default setting has no kick! (cond = false)
+	// A_Beam is mass number of beam (e.g. 8. for 8He)
+	// M_beam is mass of beam in units of MeV/c2
+	void SetGoldhaberParameters(G4bool cond, G4double A_Beam, G4double M_beam, G4double FWHM);
+
+	// Sets RelativeEnergy between particles (i.e. resonance energy)
+	void SetRelativeEnergy(G4String Ran, G4double value, G4double Width);
+
+	G4double GetAlphaSeparationEnergy(){return Alpha_Separation_Energy;}
+	void SetAlphaSeparationEnergy(G4double energy){Alpha_Separation_Energy = energy;}
+
+	G4double GetDeltaSeparationEnergy(){return Delta_Separation_Energy;}
+	void SetDeltaSeparationEnergy(G4double energy){Delta_Separation_Energy = energy;}
+
+
+
+private:
+
+	// Hide assignment operator as private
+	DPL_alphaDecay& operator=(const DPL_alphaDecay &right);
+
+	  // Copy constructor
+	DPL_alphaDecay(const DPL_alphaDecay&);
+
+	  // Other Pre-Defined Class Variables and Functions are below!
+
+
+private:
+
+  G4double Pi;
+
+  G4bool GoldCond;     // enable Goldhaber if set to "true"
+  G4double A_Beam;
+  G4double Mass_beam;
+  G4double Mom_FWHM;
+
+  G4double Alpha_Separation_Energy;
+  G4double Delta_Separation_Energy;
+
+  G4String RanCond;    // enable random E_rel (for acceptance) set to "random"
+  G4double E_rel;
+  G4double ResWidth;
+
+  G4int A_Parent;
+  G4int Z_Parent;
+
+  // Storage Variables for Recoil
+  G4int A_Rec;        // Mass Number of Recoil Nucleus
+  G4int Z_Rec;        // Charge of Recoil Nucleus
+
+  // Momentum 4-vectors for Fragment, recoil and neutron
+  G4LorentzVector P_Frag;
+  G4LorentzVector P_Recoil;
+  G4LorentzVector P_Alpha;
+
+  // Mass Storage Variables
+  G4int A_Frag;
+  G4int Z_Frag;
+  G4double Mass_Fragment;
+  G4double Mass_Alpha;
+  G4double Mass_Recoil;
+
+  G4int NumberOfLines;
+  G4double Normalization;
+  G4double *DaughterExEng;
+  G4double *IntensityRaw;
+  G4double *ProbRaw;
+  G4double *ProbLimit;
+
+
+};
+
+#endif /* DPLALPHADECAY_HH_ */

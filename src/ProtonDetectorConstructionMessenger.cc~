@@ -1,0 +1,205 @@
+/*
+ * ProtonDetectorConstructionMessenger.cc
+ *
+ *  Created on: Dec 17, 2013
+ *      Author: perezlou
+ */
+
+
+#include <ProtonDetectorConstructionMessenger.hh>
+
+#include <G4RunManager.hh>
+
+#include <ProtonDetectorConstruction.hh>
+#include <G4UIdirectory.hh>
+#include <G4UIcmdWithAString.hh>
+#include "G4UIcmdWithADoubleAndUnit.hh"
+#include "G4UIcmdWith3VectorAndUnit.hh"
+#include "G4UIcmdWithoutParameter.hh"
+
+
+ProtonDetectorConstructionMessenger::ProtonDetectorConstructionMessenger(ProtonDetectorConstruction *det):ProtonDetector(det) {
+	//
+	// Constructor with fully functionality
+	//
+
+	ProtonDetectorDir = new G4UIdirectory("/ProtonDetector/");
+	ProtonDetectorDir->SetGuidance("UI commands for ProtonDetector program");
+
+	detDir = new G4UIdirectory("/ProtonDetector/det/");
+	detDir->SetGuidance("Detector construction control");
+
+	gasMaterCmd = new G4UIcmdWithAString("/ProtonDetector/det/gas/setGasMat",this);
+	gasMaterCmd->SetGuidance("Select Material of the Gas.");
+	gasMaterCmd->SetParameterName("gasMat",false);
+	gasMaterCmd->SetDefaultValue("ArMethane");
+	gasMaterCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+
+	detectorGeometryCmd = new G4UIcmdWithAString("/ProtonDetector/det/setDetectorGeometry",this);
+	detectorGeometryCmd->SetGuidance("Defines the geometry of the detector.");
+	detectorGeometryCmd->SetGuidance("Choice: box (default), tube.");
+	detectorGeometryCmd->SetParameterName("choice", false);
+	detectorGeometryCmd->SetDefaultValue("box");
+	detectorGeometryCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+	degraderIncludedFlagCmd = new G4UIcmdWithAString("/ProtonDetector/det/degraderIncludedFlag",this);
+	degraderIncludedFlagCmd->SetGuidance("Includes the aluminium degrader in the simulation (default off).");
+	degraderIncludedFlagCmd->SetGuidance("Choice: on, off (default).");
+	degraderIncludedFlagCmd->SetParameterName("choice", false);
+	degraderIncludedFlagCmd->SetDefaultValue("off");
+	degraderIncludedFlagCmd->SetCandidates("on off");
+	degraderIncludedFlagCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+
+	xGasBoxCmd = new G4UIcmdWithADoubleAndUnit("/ProtonDetector/det/setXboxLenth",this);
+	xGasBoxCmd->SetGuidance("Selects the length X dimension of the Gas Box.");
+	xGasBoxCmd->SetParameterName("xGasBox",false);
+	xGasBoxCmd->SetRange("xGasBox>=0.");
+	xGasBoxCmd->SetUnitCategory("Length");
+	xGasBoxCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+	yGasBoxCmd = new G4UIcmdWithADoubleAndUnit("/ProtonDetector/det/setYboxLenth",this);
+	yGasBoxCmd->SetGuidance("Selects the length Y dimension of the Gas Box.");
+	yGasBoxCmd->SetParameterName("yGasBox",false);
+	yGasBoxCmd->SetRange("yGasBox>=0.");
+	yGasBoxCmd->SetUnitCategory("Length");
+	yGasBoxCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+	zGasBoxCmd = new G4UIcmdWithADoubleAndUnit("/ProtonDetector/det/setZboxLenth",this);
+	zGasBoxCmd->SetGuidance("Selects the length Z dimension of the Gas Box.");
+	zGasBoxCmd->SetParameterName("zGasBox",false);
+	zGasBoxCmd->SetRange("zGasBox>=0.");
+	zGasBoxCmd->SetUnitCategory("Length");
+	zGasBoxCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+	radiusGasTubCmd = new G4UIcmdWithADoubleAndUnit("/ProtonDetector/det/setRadiusGasTube",this);
+	radiusGasTubCmd->SetGuidance("Selects the outer radius of the Gas Tube.");
+	radiusGasTubCmd->SetParameterName("radiusGasTube",false);
+	radiusGasTubCmd->SetRange("radiusGasTube>=0.");
+	radiusGasTubCmd->SetUnitCategory("Length");
+	radiusGasTubCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+	lengthGasTubCmd = new G4UIcmdWithADoubleAndUnit("/ProtonDetector/det/setLengthGasTube",this);
+	lengthGasTubCmd->SetGuidance("Selects the length of the Gas Tube.");
+	lengthGasTubCmd->SetParameterName("lengthGasTube",false);
+	lengthGasTubCmd->SetRange("lengthGasTube>=0.");
+	lengthGasTubCmd->SetUnitCategory("Length");
+	lengthGasTubCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+	DegraderPosCmd = new G4UIcmdWith3VectorAndUnit("/ProtonDetector/det/degraderPos",this);
+	DegraderPosCmd->SetGuidance("Defines the position of the Al degrader");
+	DegraderPosCmd->SetGuidance("Usage /ProtonDetector/det/degraderPos X Y Z unit");
+	DegraderPosCmd->SetParameterName("X","Y","Z",true,true);
+	DegraderPosCmd->SetDefaultUnit("mm");
+	DegraderPosCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+	DegraderThicknessCmd = new G4UIcmdWithADoubleAndUnit("/ProtonDetector/det/setDegraderThickness",this);
+	DegraderThicknessCmd->SetGuidance("Selects the thickness of the Al degrader");
+	DegraderThicknessCmd->SetParameterName("DegThickness",false);
+	DegraderThicknessCmd->SetRange("DegThickness>=0");
+	DegraderThicknessCmd->SetUnitCategory("Length");
+	DegraderThicknessCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+	DegraderAngleCmd = new G4UIcmdWithADoubleAndUnit("/ProtonDetector/det/setDegraderAngle",this);
+	DegraderAngleCmd->SetGuidance("Selects the Angle of the Al degrader");
+	DegraderAngleCmd->SetParameterName("DegAngle",false);
+	DegraderAngleCmd->SetRange("DegAngle>=0");
+	DegraderAngleCmd->SetUnitCategory("Angle");
+	DegraderAngleCmd->AvailableForStates(G4State_PreInit,G4State_Idle);
+
+	updateCmd = new G4UIcmdWithoutParameter("/ProtonDetector/det/update",this);
+	updateCmd->SetGuidance("Update geometry.");
+	updateCmd->SetGuidance("This command MUST be applied before \"beamOn\" ");
+	updateCmd->SetGuidance("if you changed geometrical value(s).");
+	updateCmd->AvailableForStates(G4State_Idle);
+
+	printCmd = new G4UIcmdWithoutParameter("/ProtonDetector/det/print",this);
+	printCmd->SetGuidance("Prints geometry.");
+	printCmd->AvailableForStates(G4State_Idle);
+
+}
+
+
+
+ProtonDetectorConstructionMessenger::~ProtonDetectorConstructionMessenger() {
+
+	delete ProtonDetectorDir;
+	delete detDir;
+	delete detectorGeometryCmd;
+	delete degraderIncludedFlagCmd;
+	delete gasMaterCmd;
+ 
+	delete xGasBoxCmd;
+	delete yGasBoxCmd;
+	delete zGasBoxCmd;
+	delete radiusGasTubCmd;
+	delete lengthGasTubCmd;
+
+	//Degrader settings
+	delete DegraderPosCmd;
+	delete DegraderThicknessCmd;
+	delete DegraderAngleCmd;
+
+	delete updateCmd;
+	delete printCmd;
+
+}
+
+void ProtonDetectorConstructionMessenger::SetNewValue(G4UIcommand *command, G4String newValue){
+
+	if(command == detectorGeometryCmd){
+		ProtonDetector->SetDetectorGeometry(newValue);
+	}
+
+	if(command == degraderIncludedFlagCmd){
+		ProtonDetector->SetDegraderIncludedFlag(newValue);
+	}
+
+	if(command == gasMaterCmd)
+	  {
+	    ProtonDetector->SetGasMaterial(newValue);
+	  }
+
+	if(command == xGasBoxCmd){
+		ProtonDetector->SetXGasBox(xGasBoxCmd->GetNewDoubleValue(newValue));
+	}
+
+	if(command == yGasBoxCmd){
+		ProtonDetector->SetYGasBox(yGasBoxCmd->GetNewDoubleValue(newValue));
+	}
+
+	if(command == zGasBoxCmd){
+		ProtonDetector->SetZGasBox(zGasBoxCmd->GetNewDoubleValue(newValue));
+	}
+
+	if(command == radiusGasTubCmd){
+		ProtonDetector->SetRadiusGasTub(radiusGasTubCmd->GetNewDoubleValue(newValue));
+	}
+
+
+	if(command == lengthGasTubCmd){
+		ProtonDetector->SetLengthGasTub(lengthGasTubCmd->GetNewDoubleValue(newValue));
+	}
+
+	if(command == DegraderPosCmd){
+		ProtonDetector->SetDegraderPosition(DegraderPosCmd->GetNew3VectorValue(newValue));
+	}
+
+	if(command == DegraderThicknessCmd){
+		ProtonDetector->SetDegraderThickness(DegraderThicknessCmd->GetNewDoubleValue(newValue));
+	}
+
+	if(command == DegraderAngleCmd){
+		ProtonDetector->SetDegraderAngle(DegraderAngleCmd->GetNewDoubleValue(newValue));
+	}
+
+	if(command == printCmd){
+		ProtonDetector->PrintDetectorParameters();
+	}
+
+	if(command == updateCmd){
+		ProtonDetector->UpdateGeometry();
+	}
+}
+

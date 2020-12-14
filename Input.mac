@@ -1,0 +1,112 @@
+
+################################################################
+#*-- AUTHOR : David Perez Loureiro
+#*-- Date: 06/2015
+#*-- Last Update: 
+# --------------------------------------------------------------
+################################################################
+# Macro file for testing online jobs
+################################################################
+
+#VERBOSE LEVEL
+/run/verbose 1
+/event/verbose 0
+/tracking/verbose 0
+
+
+#VISUALIZATION
+#/vis/scene/create
+#/vis/open OGL
+#/tracking/storeTrajectory 1
+#/vis/scene/endOfEventAction accumulate
+#/vis/scene/add/trajectories
+
+# DETECTOR CHARACTERIZATION
+
+#Definitions of the geometry and dimensions
+/ProtonDetector/det/setDetectorGeometry tube
+/ProtonDetector/det/setRadiusGasTube 1.0 cm
+/ProtonDetector/det/setLengthGasTube 32 cm
+/ProtonDetector/det/degraderIncludedFlag on
+
+#Position of the Al degrader and properties
+/ProtonDetector/det/degraderPos 0 0 -25 cm 
+/ProtonDetector/det/setDegraderThickness 2.63 mm
+/ProtonDetector/det/setDegraderAngle 0.0 deg
+
+#Defining the gas material
+#Uncomment the gas selected (default P5_800torr)
+#Xenon
+#/ProtonDetector/det/gas/setGasMat Xenon_1atm
+#/ProtonDetector/det/gas/setGasMat Xenon_800torr
+#/ProtonDetector/det/gas/setGasMat Xenon_2atm
+#P5 95%Ar+5%methane
+#/ProtonDetector/det/gas/setGasMat P5_0.5atm
+#/ProtonDetector/det/gas/setGasMat P5_1atm
+/ProtonDetector/det/gas/setGasMat P5_800torr #(Default)
+#/ProtonDetector/det/gas/setGasMat P5_1.5atm
+#P10 90%Ar+10%methane
+#/ProtonDetector/det/gas/setGasMat P10_0.5atm
+#/ProtonDetector/det/gas/setGasMat P10_1atm
+#/ProtonDetector/det/gas/setGasMat P10_800torr #(Default)
+#/ProtonDetector/det/gas/setGasMat P10_1.5atm
+#Ar97.5%+Isobutane2.5%
+#/ProtonDetector/det/gas/setGasMat ArIso-2.5%_0.5atm
+#/ProtonDetector/det/gas/setGasMat ArIso-2.5%_1atm
+#/ProtonDetector/det/gas/setGasMat ArIso-2.5%_800torr
+#/ProtonDetector/det/gas/setGasMat ArIso-2.5%_1.5atm
+#Ar95%+Isobutane5%
+#/ProtonDetector/det/gas/setGasMat ArIso-5%_0.5atm
+#/ProtonDetector/det/gas/setGasMat ArIso-5%_1atm
+#/ProtonDetector/det/gas/setGasMat ArIso-5%_800torr
+#/ProtonDetector/det/gas/setGasMat ArIso-5%_1.5atm
+#Ar90%+Isobutane10%
+#/ProtonDetector/det/gas/setGasMat ArIso-10%_0.5atm
+#/ProtonDetector/det/gas/setGasMat ArIso-10%_1atm
+#/ProtonDetector/det/gas/setGasMat ArIso-10%_800torr
+#/ProtonDetector/det/gas/setGasMat ArIso-10%_1.5atm
+#Ar90%+CO210%
+#/ProtonDetector/det/gas/setGasMat ArCO2-10%_0.5atm
+#/ProtonDetector/det/gas/setGasMat ArCO2-10%_1atm
+#/ProtonDetector/det/gas/setGasMat ArCO2-10%_800torr
+#/ProtonDetector/det/gas/setGasMat ArCO2-10%_1.5atm
+
+
+
+#Update the geometry before launching the simulation
+/ProtonDetector/det/update
+
+#source
+#/gps/source/multiplevertex true
+
+
+/gps/particle proton
+/gps/energy 1.5 MeV
+/gps/ene/type Mono
+/gps/pos/centre 0 0 0 cm
+/gps/ang/type iso
+
+#/gps/source/add 1
+#/gps/particle e+
+#/gps/energy 1.5 MeV
+#/gps/ene/type Mono
+/gps/pos/type Beam
+/gps/pos/shape Circle
+#/gps/pos/centre 0 0 0 cm
+/gps/pos/centre 0 0 0 cm
+/gps/pos/sigma_x 1.5 cm
+/gps/pos/sigma_y 1.5 cm
+#/gps/ang/type iso
+/gps/ang/mintheta 90 deg
+/gps/ang/maxtheta 90 deg
+
+/gps/ion 17 31 0
+#/gps/pos/centre 0 0 0 cm
+/gps/energy 0.5 eV
+
+## RUN: number of events
+#/run/beamOn 100000
+#/run/beamOn 10000000
+## RUN: number of events
+#/run/beamOn 2000
+
